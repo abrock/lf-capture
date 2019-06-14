@@ -24,7 +24,10 @@ void Capture::webcamGrabThread() {
         if (!cam.isOpened()) {
             std::cout << "Opening webcam..." << std::flush;
             cam.open(0);
-            std::cout << "done." << std::endl;
+            std::cout << "finished opening webcam, setting frame width and height..." << std::endl;
+            cam.set(cv::CAP_PROP_FRAME_WIDTH, 2592);
+            cam.set(cv::CAP_PROP_FRAME_HEIGHT, 1944);
+            std::cout << "finished setting frame width." << std::endl;
         }
         cv::Mat result;
         cam >> result; // Dismiss the first frame since it might be old and the scene might have moved.
