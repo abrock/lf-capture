@@ -3,12 +3,24 @@
 #include "turntable.h"
 #include "capture.h"
 #include <unistd.h>
+#include <signal.h>
+
+Capture c;
+
+void signal_handler(int signum) {
+    std::cout << "Caught signal " << signum << ", sleeping..." << std::flush;
+    sleep(2);
+    std::cout << "done. shooting..." << std::flush;
+    c.shoot();
+    std::cout << "done. Killing signal source..." << std::flush;
+
+    std::cout << "done." << std::endl;
+}
 
 int main() {
 
     Turntable turn;
 
-    Capture c;
 
     bool use_serial = true;
 
@@ -19,6 +31,7 @@ int main() {
 
     turn.startRX();
 
+    signal(SIGUSR1, signal_handler);
 
     while (true) {
         sleep(1);

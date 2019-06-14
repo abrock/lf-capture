@@ -6,6 +6,7 @@
 #include <string>
 #include <array>
 #include <sstream>
+#include <thread>
 #include <boost/filesystem.hpp>
 
 namespace fs = boost::filesystem;
@@ -62,6 +63,10 @@ void Capture::shootGphoto2(std::string const filename) {
     }
     else {
         std::cout << "Did not find target file, something wrong with the capture process?" << std::endl;
+    }
+    if (fs::file_size(filename) < 10*1000) {
+        std::cout << "Target file unrealistically small, please check." << std::endl;
+        sleep(2);
     }
 }
 
