@@ -9,11 +9,12 @@ Capture c;
 
 void signal_handler(int signum) {
     std::cout << "Caught signal " << signum << ", sleeping..." << std::flush;
-    sleep(2);
-    std::cout << "done. shooting..." << std::flush;
-    c.shoot();
-    std::cout << "done. Killing signal source..." << std::flush;
+    sleep(2); // This allows the ls
 
+    std::cout << "finished sleeping. shooting..." << std::flush;
+    c.shoot();
+    std::cout << "finished shooting. Killing signal source..." << std::flush;
+    system("killall -SIGUSR1 lf-signal");
     std::cout << "done." << std::endl;
 }
 
