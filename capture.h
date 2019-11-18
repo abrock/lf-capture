@@ -4,6 +4,7 @@
 #include <string>
 #include<opencv2/opencv.hpp>
 
+#include "araviscapture.h"
 
 class Capture {
 private:
@@ -11,7 +12,7 @@ private:
     std::string suffix = ".arw";
     std::string webcam_suffix = ".png";
 
-    std::string camera_name = "Sony Alpha-A7r II";
+    std::string camera_name = "Sony";
 
     cv::VideoCapture cam;
 
@@ -23,9 +24,14 @@ private:
     volatile size_t webcamCount = 0;
 
     void webcamGrabThread();
+
+    bool enable_webcam = false;
+
+    AravisCapture aravis;
 public:
     Capture();
 
+    void shootAravis(const std::string filename);
     void shootGphoto2(const std::string filename);
     void shootWebcamSave(const std::string filename);
     cv::Mat shootWebcam();

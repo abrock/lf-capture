@@ -48,8 +48,24 @@ void Capture::webcamGrabThread() {
 }
 
 Capture::Capture() {
-    std::thread webcamThread(&Capture::webcamGrabThread, this);
-    webcamThread.detach();
+    if (enable_webcam) {
+        std::thread webcamThread(&Capture::webcamGrabThread, this);
+        webcamThread.detach();
+    }
+}
+
+void Capture::shootAravis(const std::string filename) {
+    if (aravis.hasCamera() > 0) {
+        std::cout << "aravis capturing..." << std::flush;
+        cv::Mat img = aravis.capture();
+        std::cout << " done." << std::endl
+                  << "saving aravis image..." << std::flush;
+        cv::imwrite(filename, img);
+        std::cout << " done." << std::endl;
+    }
+    else {
+        std::cout << "No camera found" << std::endl;
+    }
 }
 
 void Capture::shootGphoto2(std::string const filename) {
@@ -80,20 +96,28 @@ void Capture::shoot() {
     std::string const filename = getFreeFilename();
     std::cout << "First free filename: " << filename << std::endl;
 
-    webcamCount = 0;
-    integrateWebcam = true;
-    shootGphoto2(filename + suffix);
-    integrationStopAcknowledged = false;
-    integrateWebcam = false;
-    while (!integrationStopAcknowledged) {
-        usleep(10*1000);
+    if (enable_webcam) {
+        webcamCount = 0;
+        integrateWebcam = true;
     }
-    std::cout << "Got " << webcamCount << " frames from webcam" << std::endl;
+    std::thread gphoto2_thread(&Capture::shootGphoto2, this, (filename + suffix));
+    std::thread aravis_thread(&Capture::shootAravis, this, filename + ".png");
 
-    cv::normalize(webcamSum, webcamSum, 0, 255, cv::NORM_MINMAX);
-    webcamSum.convertTo(webcamSum, CV_8UC3);
-    cv::imwrite(filename + webcam_suffix, webcamSum);
-    std::cout << "Finished writing webcam image" << std::endl;
+    aravis_thread.join();
+    gphoto2_thread.join();
+    if (enable_webcam) {
+        integrationStopAcknowledged = false;
+        integrateWebcam = false;
+        while (!integrationStopAcknowledged) {
+            usleep(10*1000);
+        }
+        std::cout << "Got " << webcamCount << " frames from webcam" << std::endl;
+
+        cv::normalize(webcamSum, webcamSum, 0, 255, cv::NORM_MINMAX);
+        webcamSum.convertTo(webcamSum, CV_8UC3);
+        cv::imwrite(filename + webcam_suffix, webcamSum);
+        std::cout << "Finished writing webcam image" << std::endl;
+    }
 }
 
 
@@ -195,7 +219,7 @@ void Capture::drawHist(cv::Mat const& img) {
 }
 
 cv::Mat Capture::shootWebcam() {
-
+    throw std::runtime_error("not implemented");
 }
 
 void Capture::shootWebcamSave(const std::string filename) {

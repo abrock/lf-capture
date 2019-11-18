@@ -10,6 +10,7 @@ Turntable::Turntable() {
 void runRXThread(Turntable * t) {
     while (true) {
         t->updatePosition();
+        usleep(50*1000);
     }
 }
 

@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-Capture c;
+static Capture c;
 
 void signal_handler(int signum) {
     std::cout << "Caught signal " << signum << ", sleeping..." << std::flush;
